@@ -380,8 +380,18 @@ function updateScores() {
 
 function refreshCitiesFromDb() {
   if (!conn) return;
+  const myIdentity = conn.identity;
   const results = [];
-  for (const row of conn.db.score_result.iter()) {
+  // Filter score_result by the current connection's identity. Without
+  // this, every connected client sees every other client's stale
+  // results in the table, which causes the top-matches panel to show
+  // duplicate city names (one entry per call) and hides any language
+  // filter the user just applied (since the user's filtered results
+  // are buried under a mountain of unfiltered rows from past calls).
+  const source = myIdentity
+    ? conn.db.score_result.by_identity.filter(myIdentity)
+    : conn.db.score_result.iter();
+  for (const row of source) {
     results.push({
       name: row.name,
       lat: row.lat,
