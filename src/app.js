@@ -382,16 +382,17 @@ function refreshCitiesFromDb() {
   if (!conn) return;
   const myIdentity = conn.identity;
   const results = [];
-  // Filter score_result by the current connection's identity. Without
-  // this, every connected client sees every other client's stale
-  // results in the table, which causes the top-matches panel to show
-  // duplicate city names (one entry per call) and hides any language
-  // filter the user just applied (since the user's filtered results
-  // are buried under a mountain of unfiltered rows from past calls).
-  const source = myIdentity
-    ? conn.db.score_result.by_identity.filter(myIdentity)
-    : conn.db.score_result.iter();
-  for (const row of source) {
+  // We need to read only the rows for *this* connection's identity --
+  // otherwise the top-matches panel shows every past client's stale
+  // results, and any language filter the user just applied gets buried
+  // under unfiltered rows from prior calls. The SpacetimeDB client SDK
+  // has a `by_identity` index on this table, but as of the published
+  // bindings the server returns its name as `null` (so the accessor
+  // ends up on a `undefined` property, not `by_identity`). Until the
+  // bindings are regenerated, we filter client-side: 440 rows per
+  // identity is a small loop, so this is fast.
+  for (const row of conn.db.score_result.iter()) {
+    if (myIdentity && !row.identity.isEqual(myIdentity)) continue;
     results.push({
       name: row.name,
       lat: row.lat,
@@ -819,6 +820,8 @@ function setupDbCallbacks() {
 
 export function initApp(connection) {
   conn = connection;
+  // Expose for debugging in the browser console
+  if (typeof window !== "undefined") window.__app = { conn, get conn() { return conn; } };
 
   initStarfield();
   buildSliders();
