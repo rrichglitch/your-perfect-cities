@@ -61,6 +61,22 @@ let translations = {};
 let currentLang = "en";
 let selectedLanguages = ["", "", ""];
 let pendingUpdate = false;
+let refreshTimer = null;       // debounce timer for refreshCitiesFromDb
+
+function scheduleRefresh() {
+  // The score_cities reducer inserts up to 440 rows in a single call,
+  // each of which fires an onInsert subscription event. Refreshing on
+  // every one of those means scanning the entire score_result table
+  // hundreds of times in a row, which freezes or crashes the browser
+  // tab. Instead, schedule a single refresh after a short quiet
+  // period -- by the time the timer fires, all the inserts have
+  // landed and we do exactly one scan.
+  if (refreshTimer !== null) return;
+  refreshTimer = setTimeout(() => {
+    refreshTimer = null;
+    refreshCitiesFromDb();
+  }, 100);
+}
 let pinnedCity = null;       // city the tooltip is currently anchored to
 let pinnedCityKey = null;    // identifier used to detect "still hovering the same city"
 let tooltipOver = false;     // true while the cursor is over the tooltip itself
@@ -788,20 +804,22 @@ function initControls() {
 function setupDbCallbacks() {
   if (!conn) return;
 
-  // When score results change, refresh the globe
+  // When score results change, refresh the globe. Use the debounced
+  // scheduler so a 440-row insert burst results in one refresh, not
+  // 440.
   conn.db.score_result.onInsert(() => {
-    refreshCitiesFromDb();
+    scheduleRefresh();
     pendingUpdate = false;
     const loadingEl = document.getElementById("loading");
     if (loadingEl) loadingEl.style.display = "none";
   });
 
   conn.db.score_result.onUpdate(() => {
-    refreshCitiesFromDb();
+    scheduleRefresh();
   });
 
   conn.db.score_result.onDelete(() => {
-    refreshCitiesFromDb();
+    scheduleRefresh();
   });
 
   // When translations arrive, apply them
