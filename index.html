@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Perfect Cities</title>
+<script src="https://unpkg.com/deck.gl@8.9.0/dist.min.js"></script>
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+  <!-- Language Selection Modal -->
+  <div id="lang-modal" class="modal active">
+    <div class="modal-content">
+      <h2 id="modal-title">Select Your Languages</h2>
+      <p id="modal-desc">Choose the languages you speak. Cities without any of these languages will be filtered out. Leave all blank to skip language filtering.</p>
+      <div class="lang-select-row">
+        <label id="label-primary">Primary Language</label>
+        <select id="modal-lang-primary"></select>
+      </div>
+      <div class="lang-select-row">
+        <label id="label-secondary">Secondary Language</label>
+        <select id="modal-lang-secondary"></select>
+      </div>
+      <div class="lang-select-row">
+        <label id="label-tertiary">Tertiary Language</label>
+        <select id="modal-lang-tertiary"></select>
+      </div>
+      <button id="modal-confirm" class="modal-btn">Continue</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <div id="controls">
+      <div id="connection-status" class="connection-status">Connecting...</div>
+      <h1 id="app-title">Your Perfect Cities</h1>
+      <div class="subtitle" id="app-subtitle">Find cities that match your values.</div>
+      <div id="lang-section">
+        <div class="section-title" id="lang-section-title">Language</div>
+        <div class="lang-row">
+          <label id="label-primary-panel">Primary</label>
+          <select id="lang-primary"></select>
+        </div>
+        <div class="lang-row">
+          <label id="label-secondary-panel">Secondary</label>
+          <select id="lang-secondary"></select>
+        </div>
+        <div class="lang-row">
+          <label id="label-tertiary-panel">Tertiary</label>
+          <select id="lang-tertiary"></select>
+        </div>
+      </div>
+      <div id="sliders"></div>
+      <div class="btn-row">
+        <button id="reset">Reset</button>
+        <button id="random" class="secondary">Surprise Me</button>
+      </div>
+    </div>
+
+    <div id="globe-wrapper">
+      <canvas id="starfield"></canvas>
+      <div id="globe"></div>
+      <div id="loading">Updating...</div>
+      <div id="legend">
+        <div class="legend-title" id="legend-title">Match Score</div>
+        <div class="legend-bar"></div>
+        <div class="legend-labels">
+          <span id="legend-low">Low</span>
+          <span id="legend-high">High</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="top-cities">
+      <div class="panel-title" id="panel-title">Top Matches</div>
+      <div class="panel-subtitle" id="panel-subtitle">Your top 20 ranked cities</div>
+      <div id="city-list" class="city-list"></div>
+    </div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

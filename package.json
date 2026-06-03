@@ -1,0 +1,16 @@
+{
+  "name": "your-perfect-cities",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "spacetimedb": "^2.0.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
